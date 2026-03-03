@@ -3,55 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>進入 YouTube 前的冥想</title>
+    <title>進入 YouTube 前的最後警告</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: white; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; }
-        h1 { color: #d32f2f; margin-bottom: 1rem; }
-        p { color: #555; line-height: 1.6; }
-        input { width: 100%; padding: 10px; margin: 1rem 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .buttons { display: flex; gap: 10px; flex-direction: column; }
-        button { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-go { background-color: #4caf50; color: white; display: none; } /* 初始隱藏 */
-        .btn-leave { background-color: #eee; color: #333; }
-        .btn-leave:hover { background-color: #ddd; }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background-color: #000; 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden; /* 防止按鈕噴到視窗外產生捲軸 */
+        }
+        .container { text-align: center; width: 90%; max-width: 600px; }
+        .warning-text { font-size: 1.5rem; line-height: 1.8; margin-bottom: 2rem; }
+        .drug-text { color: #ff0000; font-weight: bold; font-size: 1.8rem; }
+        .timer { font-size: 3rem; color: #555; margin: 1rem 0; }
+        
+        #goBtn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: none; /* 初始隱藏 */
+            position: relative;
+            transition: 0.1s;
+            font-weight: bold;
+        }
+        .status { margin-top: 10px; color: #888; font-size: 0.9rem; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>🛑 等一下！</h1>
-        <p>你現在進去 YouTube 是為了特定的學習目標，還是單純想滑掉時間？</p>
-        
-        <input type="text" id="unlockInput" placeholder="請輸入「我要專注」以解除鎖定">
-        
-        <div class="buttons">
-            <button id="goBtn" class="btn-go" onclick="grantAccess()">我已認清目標，進去吧</button>
-            <button class="btn-leave" onclick="location.href='https://www.google.com'">算了，我不看了</button>
+        <div class="warning-text">
+            小心，YouTube 是<span class="drug-text">一級毒品</span><br>
+            請詳記自己要幹嘛
         </div>
+
+        <div id="timer" class="timer">10</div>
+        
+        <button id="goBtn" onclick="handleButtonClick()">進入</button>
+        <div id="status" class="status"></div>
     </div>
 
     <script>
-        const input = document.getElementById('unlockInput');
+        let timeLeft = 10;
+        let clickCount = 0;
+        const totalSteps = 10;
+        
+        const timerDisplay = document.getElementById('timer');
         const btn = document.getElementById('goBtn');
+        const statusDisplay = document.getElementById('status');
 
-        // 監聽輸入，只有打對字才會顯示按鈕
-        input.addEventListener('input', (e) => {
-            if (e.target.value === '我要專注') {
-                btn.style.display = 'block';
-            } else {
-                btn.style.display = 'none';
+        // 1. 倒數計時邏輯
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.style.display = 'none';
+                btn.style.display = 'inline-block';
+                statusDisplay.textContent = `請完成最後驗證：點擊按鈕 10 次 (0/${totalSteps})`;
             }
-        });
+        }, 1000);
 
+        // 2. 按鈕點擊與隨機傳送邏輯
+        function handleButtonClick() {
+            clickCount++;
+            
+            if (clickCount < totalSteps) {
+                moveButton();
+                statusDisplay.textContent = `請完成最後驗證：點擊按鈕 10 次 (${clickCount}/${totalSteps})`;
+            } else {
+                grantAccess();
+            }
+        }
+
+        function moveButton() {
+            // 計算視窗範圍，扣除按鈕寬高避免切掉
+            const padding = 100;
+            const x = Math.random() * (window.innerWidth - padding * 2) + padding;
+            const y = Math.random() * (window.innerHeight - padding * 2) + padding;
+            
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+        }
+
+        // 3. 授權跳轉
         function grantAccess() {
             const urlParams = new URLSearchParams(window.location.search);
-            // 拿到油猴傳過來的原網址，如果沒有就去 YT 首頁
             const returnUrl = urlParams.get('return') || 'https://www.youtube.com';
             const separator = returnUrl.includes('?') ? '&' : '?';
-            // 帶著 pass=true 回去
             window.location.href = returnUrl + separator + 'pass=true';
         }
     </script>
 </body>
 </html>
-
