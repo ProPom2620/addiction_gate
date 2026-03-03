@@ -2,150 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL WARNING: ADDICTION ALERT</title>
+    <title>ADDICTION WARNING</title>
     <style>
-        /* 抖動動畫 */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
-
-        /* 呼吸發光動畫 */
         @keyframes glow {
-            from { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
-            to { text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 60px #ff0000; }
+            from { text-shadow: 0 0 10px #ff0000; }
+            to { text-shadow: 0 0 40px #ff0000; }
         }
-
-        body { 
-            font-family: 'Arial Black', Gadget, sans-serif; 
-            background-color: #000; 
-            color: #fff; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            overflow: hidden;
-        }
-
+        body { font-family: 'Arial Black', sans-serif; background: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         .container { text-align: center; width: 90%; }
-
-        .warning-text { 
-            font-size: 3rem; 
-            line-height: 1.2; 
-            margin-bottom: 2rem;
-            animation: shake 0.5s infinite; 
-        }
-
-        .drug-text { 
-            color: #ff0000; 
-            font-weight: 900; 
-            font-size: 4.5rem; 
-            animation: glow 1s ease-in-out infinite alternate;
-        }
-
-        /* 倒數計時器：發光 + 抖動 */
-        .timer { 
-            font-size: 8rem; /* 再次放大 */
-            color: #ff0000; 
-            margin: 1rem 0; 
-            font-weight: bold;
-            animation: shake 0.2s infinite, glow 0.5s ease-in-out infinite alternate;
-        }
-        
-        #goBtn {
-            padding: 20px 50px;
-            font-size: 1.5rem;
-            background-color: #ff0000;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
-            position: fixed;
-            font-weight: bold;
-            box-shadow: 0 0 30px rgba(255,0,0,0.8);
-        }
-
-        .status { margin-top: 20px; color: #ff0000; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
+        .warning-text { font-size: 3rem; animation: shake 0.5s infinite; }
+        .drug-text { color: #ff0000; font-size: 4.5rem; animation: glow 1s infinite alternate; }
+        .timer { font-size: 8rem; color: #ff0000; animation: shake 0.2s infinite; }
+        #goBtn { padding: 20px 50px; font-size: 1.5rem; background: #ff0000; color: #fff; border: none; display: none; position: fixed; font-weight: bold; }
+        .status { margin-top: 20px; color: #ff0000; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="warning-text">
-            BEWARE!<br>
-            YOUTUBE IS A<br>
-            <span class="drug-text">CLASS A DRUG</span><br>
-            REMEMBER YOUR PURPOSE
+            WARNING!<br> THIS SITE IS A<br>
+            <span id="levelText" class="drug-text">CLASS ? DRUG</span><br>
+            STAY FOCUSED
         </div>
-
-        <div id="timer" class="timer">30</div>
-        
+        <div id="timer" class="timer">--</div>
         <button id="goBtn" onclick="handleButtonClick()">ENTER</button>
         <div id="status" class="status"></div>
     </div>
 
     <script>
-        let timeLeft = 30; // 延長至 30 秒
-        let clickCount = 0;
-        const totalSteps = 10;
+        const urlParams = new URLSearchParams(window.location.search);
+        const level = urlParams.get('level') || 'C';
+        let timeLeft = parseInt(urlParams.get('time')) || 10;
+        
+        document.getElementById('levelText').textContent = `CLASS ${level} DRUG`;
         
         const timerDisplay = document.getElementById('timer');
         const btn = document.getElementById('goBtn');
         const statusDisplay = document.getElementById('status');
+        let clickCount = 0;
 
-        // 1. Countdown Logic
         const countdown = setInterval(() => {
             timeLeft--;
             timerDisplay.textContent = timeLeft;
-            
             if (timeLeft <= 0) {
                 clearInterval(countdown);
                 timerDisplay.style.display = 'none';
                 showButton();
-                statusDisplay.textContent = `VERIFICATION: CLICK 10 TIMES (${clickCount}/${totalSteps})`;
             }
         }, 1000);
 
-        // 2. Button Control with 0.2s Delay
         function handleButtonClick() {
             clickCount++;
-            btn.style.display = 'none'; 
-
-            if (clickCount < totalSteps) {
-                statusDisplay.textContent = `VERIFICATION: CLICK 10 TIMES (${clickCount}/${totalSteps})`;
-                setTimeout(showButton, 200); 
+            btn.style.display = 'none';
+            if (clickCount < 10) {
+                statusDisplay.textContent = `VERIFICATION (${clickCount}/10)`;
+                setTimeout(showButton, 200);
             } else {
-                grantAccess();
+                const returnUrl = urlParams.get('return') || 'https://www.google.com';
+                window.location.href = returnUrl + (returnUrl.includes('?') ? '&' : '?') + 'pass=true';
             }
         }
 
         function showButton() {
-            const padding = 150;
-            const x = Math.random() * (window.innerWidth - padding * 2) + padding;
-            const y = Math.random() * (window.innerHeight - padding * 2) + padding;
-            
-            btn.style.left = x + 'px';
-            btn.style.top = y + 'px';
+            btn.style.left = (Math.random() * (window.innerWidth - 200) + 100) + 'px';
+            btn.style.top = (Math.random() * (window.innerHeight - 200) + 100) + 'px';
             btn.style.display = 'block';
-        }
-
-        function grantAccess() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const returnUrl = urlParams.get('return') || 'https://www.youtube.com';
-            const separator = returnUrl.includes('?') ? '&' : '?';
-            window.location.href = returnUrl + separator + 'pass=true';
         }
     </script>
 </body>
