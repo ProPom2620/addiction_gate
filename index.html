@@ -80,4 +80,61 @@
         // 1. 處理網站名稱
         function getSiteName(url) {
             try {
-                if (!url) return "
+                if (!url) return "THIS SITE";
+                const domain = new URL(url).hostname;
+                const parts = domain.split('.');
+                return (parts.length > 2 ? parts[parts.length - 2] : parts[0]).toUpperCase();
+            } catch (e) { return "THIS SITE"; }
+        }
+
+        // 2. 應用等級顏色
+        const levelElement = document.getElementById('levelLetter');
+        levelElement.textContent = level;
+        
+        // 根據等級加入對應的 CSS class
+        if (['A', 'B', 'C'].includes(level)) {
+            levelElement.classList.add(`color-${level}`);
+            // 計時器也同步顏色，增加直覺感
+            document.getElementById('timer').classList.add(`color-${level}`);
+            document.getElementById('status').classList.add(`color-${level}`);
+        }
+
+        document.getElementById('targetSite').textContent = getSiteName(returnUrl);
+
+        // --- 邏輯保持不變 ---
+        const timerDisplay = document.getElementById('timer');
+        const btn = document.getElementById('goBtn');
+        const statusDisplay = document.getElementById('status');
+        let clickCount = 0;
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.style.display = 'none';
+                showButton();
+                statusDisplay.textContent = `VERIFICATION: ${clickCount}/10`;
+            }
+        }, 1000);
+
+        function handleButtonClick() {
+            clickCount++;
+            btn.style.display = 'none'; 
+            if (clickCount < 10) {
+                statusDisplay.textContent = `VERIFICATION: ${clickCount}/10`;
+                setTimeout(showButton, 200); 
+            } else {
+                window.location.href = returnUrl + (returnUrl.includes('?') ? '&' : '?') + 'pass=true';
+            }
+        }
+
+        function showButton() {
+            const padding = 150;
+            btn.style.left = (Math.random() * (window.innerWidth - padding * 2) + padding) + 'px';
+            btn.style.top = (Math.random() * (window.innerHeight - padding * 2) + padding) + 'px';
+            btn.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
