@@ -4,43 +4,83 @@
     <meta charset="UTF-8">
     <title>ADDICTION WARNING</title>
     <style>
+        /* 保持之前的抖動與發光特效 */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
         @keyframes glow {
-            from { text-shadow: 0 0 10px #ff0000; }
-            to { text-shadow: 0 0 40px #ff0000; }
+            from { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+            to { text-shadow: 0 0 20px #ff0000, 0 0 60px #ff0000; }
         }
-        body { font-family: 'Arial Black', sans-serif; background: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        body { 
+            font-family: 'Arial Black', sans-serif; 
+            background-color: #000; color: #fff; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; overflow: hidden;
+        }
         .container { text-align: center; width: 90%; }
-        .warning-text { font-size: 3rem; animation: shake 0.5s infinite; }
-        .drug-text { color: #ff0000; font-size: 4.5rem; animation: glow 1s infinite alternate; }
-        .timer { font-size: 8rem; color: #ff0000; animation: shake 0.2s infinite; }
-        #goBtn { padding: 20px 50px; font-size: 1.5rem; background: #ff0000; color: #fff; border: none; display: none; position: fixed; font-weight: bold; }
-        .status { margin-top: 20px; color: #ff0000; font-weight: bold; }
+        .warning-text { 
+            font-size: 3rem; line-height: 1.2; margin-bottom: 2rem;
+            animation: shake 0.5s infinite; 
+        }
+        .drug-text { 
+            color: #ff0000; font-weight: 900; font-size: 4.5rem; 
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+        .site-name { color: #ffff00; text-transform: uppercase; } /* 網站名稱設為亮黃色增加對比 */
+        .timer { font-size: 8rem; color: #ff0000; animation: shake 0.2s infinite, glow 0.5s infinite alternate; }
+        #goBtn {
+            padding: 20px 50px; font-size: 1.5rem; background-color: #ff0000;
+            color: #fff; border: none; display: none; position: fixed; font-weight: bold;
+        }
+        .status { margin-top: 20px; color: #ff0000; font-size: 1.2rem; font-weight: bold; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="warning-text">
-            WARNING!<br> THIS SITE IS A<br>
+            BEWARE!<br>
+            <span id="targetSite" class="site-name">SITE</span> IS A<br>
             <span id="levelText" class="drug-text">CLASS ? DRUG</span><br>
-            STAY FOCUSED
+            REMEMBER YOUR PURPOSE
         </div>
+
         <div id="timer" class="timer">--</div>
+        
         <button id="goBtn" onclick="handleButtonClick()">ENTER</button>
         <div id="status" class="status"></div>
     </div>
 
     <script>
+        // 1. 解析 URL 參數
         const urlParams = new URLSearchParams(window.location.search);
         const level = urlParams.get('level') || 'C';
         let timeLeft = parseInt(urlParams.get('time')) || 10;
-        
+        const returnUrl = urlParams.get('return') || '';
+
+        // 2. 提取網站名稱 (例如從 https://www.youtube.com/ 提取 youtube)
+        function getSiteName(url) {
+            try {
+                if (!url) return "THIS SITE";
+                const domain = new URL(url).hostname;
+                const parts = domain.split('.');
+                // 取得主網域名稱 (通常是倒數第二個部分，如 youtube.com -> youtube)
+                let name = parts.length > 2 ? parts[parts.length - 2] : parts[0];
+                return name.toUpperCase();
+            } catch (e) {
+                return "THIS SITE";
+            }
+        }
+
+        // 3. 更新介面文字
+        document.getElementById('targetSite').textContent = getSiteName(returnUrl);
         document.getElementById('levelText').textContent = `CLASS ${level} DRUG`;
-        
+
+        // --- 以下邏輯保持不變 ---
         const timerDisplay = document.getElementById('timer');
         const btn = document.getElementById('goBtn');
         const statusDisplay = document.getElementById('status');
@@ -53,26 +93,6 @@
                 clearInterval(countdown);
                 timerDisplay.style.display = 'none';
                 showButton();
+                statusDisplay.textContent = `VERIFICATION: CLICK 10 TIMES (${clickCount}/10)`;
             }
-        }, 1000);
-
-        function handleButtonClick() {
-            clickCount++;
-            btn.style.display = 'none';
-            if (clickCount < 10) {
-                statusDisplay.textContent = `VERIFICATION (${clickCount}/10)`;
-                setTimeout(showButton, 200);
-            } else {
-                const returnUrl = urlParams.get('return') || 'https://www.google.com';
-                window.location.href = returnUrl + (returnUrl.includes('?') ? '&' : '?') + 'pass=true';
-            }
-        }
-
-        function showButton() {
-            btn.style.left = (Math.random() * (window.innerWidth - 200) + 100) + 'px';
-            btn.style.top = (Math.random() * (window.innerHeight - 200) + 100) + 'px';
-            btn.style.display = 'block';
-        }
-    </script>
-</body>
-</html>
+        },
