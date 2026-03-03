@@ -2,18 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ADDICTION WARNING</title>
+    <title>ADDICTION WARNING - EXTREME COLOR</title>
     <style>
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 10px currentColor; }
-            to { text-shadow: 0 0 30px currentColor, 0 0 50px currentColor; }
-        }
-
+        /* 基礎背景與文字設定 */
         body { 
             font-family: 'Arial Black', sans-serif; 
             background-color: #000; color: #fff; 
@@ -21,38 +12,56 @@
             height: 100vh; margin: 0; overflow: hidden;
         }
 
+        /* 劇烈震動動畫 */
+        @keyframes violent-shake {
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            20% { transform: translate(-4px, -2px) rotate(-2deg); }
+            40% { transform: translate(4px, 2px) rotate(2deg); }
+            60% { transform: translate(-4px, 2px) rotate(0deg); }
+            80% { transform: translate(-2px, -2px) rotate(2deg); }
+            100% { transform: translate(2px, -4px) rotate(-2deg); }
+        }
+
+        /* 強力發光動畫 */
+        @keyframes intense-glow {
+            from { text-shadow: 0 0 10px currentColor; }
+            to { text-shadow: 0 0 40px currentColor, 0 0 70px currentColor; }
+        }
+
         .container { text-align: center; width: 90%; }
 
+        /* 一般警告文字（輕微震動） */
         .warning-text { 
-            font-size: 3rem; line-height: 1.2; margin-bottom: 2rem;
-            animation: shake 0.5s infinite; 
+            font-size: 3rem; line-height: 1.2; margin-bottom: 1.5rem;
+            animation: violent-shake 0.5s infinite; 
         }
 
-        /* 預設 Drug 文字改為白色 */
-        .drug-label { color: #fff; font-weight: 900; font-size: 4.5rem; }
-
-        /* 等級字母專屬顏色 */
-        .level-letter {
-            font-size: 5.5rem;
+        /* 網站名稱與等級字母：重點強化區域 */
+        .critical-focus {
             font-weight: 900;
-            animation: glow 1s ease-in-out infinite alternate;
+            text-decoration: none; /* 去除底線 */
+            animation: violent-shake 0.1s infinite, intense-glow 0.3s ease-in-out infinite alternate;
         }
+
+        #targetSite { font-size: 4.5rem; }
+        #levelLetter { font-size: 6rem; }
+
+        .drug-label { color: #fff; font-weight: 900; font-size: 4rem; }
 
         /* 顏色定義 */
-        .color-A { color: #ff0000; } /* 紅色 */
-        .color-B { color: #ff8c00; } /* 橘色 */
-        .color-C { color: #ffff00; } /* 黃色 */
+        .color-A { color: #ff0000 !important; } /* 紅色 */
+        .color-B { color: #ff8c00 !important; } /* 橘色 */
+        .color-C { color: #ffff00 !important; } /* 黃色 */
 
-        .site-name { color: #fff; text-decoration: underline; }
-
-        .timer { font-size: 8rem; animation: shake 0.2s infinite; }
+        .timer { font-size: 8rem; animation: violent-shake 0.2s infinite; }
         
         #goBtn {
             padding: 20px 50px; font-size: 1.5rem; 
-            background-color: #fff; color: #000; /* 按鈕改回簡約白 */
+            background-color: #fff; color: #000;
             border: none; display: none; position: fixed; font-weight: bold;
+            box-shadow: 0 0 30px #fff; cursor: pointer;
         }
-        .status { margin-top: 20px; font-size: 1.2rem; font-weight: bold; }
+        .status { margin-top: 20px; font-size: 1.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -60,8 +69,8 @@
     <div class="container">
         <div class="warning-text">
             BEWARE!<br>
-            <span id="targetSite" class="site-name">SITE</span> IS A<br>
-            <span class="drug-label">CLASS <span id="levelLetter" class="level-letter">?</span> DRUG</span><br>
+            <span id="targetSite" class="critical-focus">SITE</span> IS A<br>
+            <span class="drug-label">CLASS <span id="levelLetter" class="critical-focus">?</span> DRUG</span><br>
             REMEMBER YOUR PURPOSE
         </div>
 
@@ -77,52 +86,50 @@
         let timeLeft = parseInt(urlParams.get('time')) || 10;
         const returnUrl = urlParams.get('return') || '';
 
+        const levelEl = document.getElementById('levelLetter');
+        const siteEl = document.getElementById('targetSite');
+        const timerEl = document.getElementById('timer');
+        const statusEl = document.getElementById('status');
+
         // 1. 處理網站名稱
         function getSiteName(url) {
             try {
                 if (!url) return "THIS SITE";
-                const domain = new URL(url).hostname;
+                const domain = new URL(decodeURIComponent(url)).hostname;
                 const parts = domain.split('.');
                 return (parts.length > 2 ? parts[parts.length - 2] : parts[0]).toUpperCase();
             } catch (e) { return "THIS SITE"; }
         }
+        siteEl.textContent = getSiteName(returnUrl);
+        levelEl.textContent = level;
 
-        // 2. 應用等級顏色
-        const levelElement = document.getElementById('levelLetter');
-        levelElement.textContent = level;
-        
-        // 根據等級加入對應的 CSS class
+        // 2. 套用顏色到網站名、等級與計時器
         if (['A', 'B', 'C'].includes(level)) {
-            levelElement.classList.add(`color-${level}`);
-            // 計時器也同步顏色，增加直覺感
-            document.getElementById('timer').classList.add(`color-${level}`);
-            document.getElementById('status').classList.add(`color-${level}`);
+            const colorClass = `color-${level}`;
+            siteEl.classList.add(colorClass);
+            levelEl.classList.add(colorClass);
+            timerEl.classList.add(colorClass);
+            statusEl.classList.add(colorClass);
         }
 
-        document.getElementById('targetSite').textContent = getSiteName(returnUrl);
-
-        // --- 邏輯保持不變 ---
-        const timerDisplay = document.getElementById('timer');
-        const btn = document.getElementById('goBtn');
-        const statusDisplay = document.getElementById('status');
+        // 3. 倒數邏輯
         let clickCount = 0;
-
         const countdown = setInterval(() => {
             timeLeft--;
-            timerDisplay.textContent = timeLeft;
+            timerEl.textContent = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(countdown);
-                timerDisplay.style.display = 'none';
+                timerEl.style.display = 'none';
                 showButton();
-                statusDisplay.textContent = `VERIFICATION: ${clickCount}/10`;
+                statusEl.textContent = `VERIFICATION: ${clickCount}/10`;
             }
         }, 1000);
 
         function handleButtonClick() {
             clickCount++;
-            btn.style.display = 'none'; 
+            document.getElementById('goBtn').style.display = 'none'; 
             if (clickCount < 10) {
-                statusDisplay.textContent = `VERIFICATION: ${clickCount}/10`;
+                statusEl.textContent = `VERIFICATION: ${clickCount}/10`;
                 setTimeout(showButton, 200); 
             } else {
                 window.location.href = returnUrl + (returnUrl.includes('?') ? '&' : '?') + 'pass=true';
@@ -130,6 +137,7 @@
         }
 
         function showButton() {
+            const btn = document.getElementById('goBtn');
             const padding = 150;
             btn.style.left = (Math.random() * (window.innerWidth - padding * 2) + padding) + 'px';
             btn.style.top = (Math.random() * (window.innerHeight - padding * 2) + padding) + 'px';
