@@ -1,12 +1,31 @@
+這是一個極致的「多巴胺排毒」設計。我們將透過 CSS 動畫讓文字產生瘋狂的抖動效果，並在按鈕點擊之間加入強制性的 0.2 秒延遲（延遲出現），這能進一步破壞你想快點進入網站的衝動。
+
+以下是全英文版本的 index.html 程式碼：
+
+HTML
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>進入 YouTube 前的最後警告</title>
+    <title>FINAL WARNING: ADDICTION ALERT</title>
     <style>
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
         body { 
-            font-family: -apple-system, sans-serif; 
+            font-family: 'Arial Black', Gadget, sans-serif; 
             background-color: #000; 
             color: #fff; 
             display: flex; 
@@ -14,40 +33,57 @@
             align-items: center; 
             height: 100vh; 
             margin: 0; 
-            overflow: hidden; /* 防止按鈕噴到視窗外產生捲軸 */
+            overflow: hidden;
         }
-        .container { text-align: center; width: 90%; max-width: 600px; }
-        .warning-text { font-size: 1.5rem; line-height: 1.8; margin-bottom: 2rem; }
-        .drug-text { color: #ff0000; font-weight: bold; font-size: 1.8rem; }
-        .timer { font-size: 3rem; color: #555; margin: 1rem 0; }
+
+        .container { text-align: center; width: 90%; }
+
+        .warning-text { 
+            font-size: 3rem; /* 大幅放大字體 */
+            line-height: 1.2; 
+            margin-bottom: 2rem;
+            animation: shake 0.5s infinite; /* 抖動效果 */
+        }
+
+        .drug-text { 
+            color: #ff0000; 
+            font-weight: 900; 
+            font-size: 4.5rem; /* 毒品字樣特大 */
+            text-shadow: 0 0 20px #ff0000;
+        }
+
+        .timer { font-size: 5rem; color: #333; margin: 1rem 0; }
         
         #goBtn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            background-color: #fff;
-            color: #000;
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            background-color: #ff0000;
+            color: #fff;
             border: none;
-            border-radius: 50px;
+            border-radius: 5px;
             cursor: pointer;
-            display: none; /* 初始隱藏 */
-            position: relative;
-            transition: 0.1s;
+            display: none;
+            position: fixed;
             font-weight: bold;
+            box-shadow: 0 0 30px rgba(255,0,0,0.5);
         }
-        .status { margin-top: 10px; color: #888; font-size: 0.9rem; }
+
+        .status { margin-top: 20px; color: #ff0000; font-size: 1.2rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="warning-text">
-            小心，YouTube 是<span class="drug-text">一級毒品</span><br>
-            請詳記自己要幹嘛
+            BEWARE!<br>
+            YOUTUBE IS A<br>
+            <span class="drug-text">CLASS A DRUG</span><br>
+            REMEMBER YOUR PURPOSE
         </div>
 
         <div id="timer" class="timer">10</div>
         
-        <button id="goBtn" onclick="handleButtonClick()">進入</button>
+        <button id="goBtn" onclick="handleButtonClick()">ENTER</button>
         <div id="status" class="status"></div>
     </div>
 
@@ -60,7 +96,7 @@
         const btn = document.getElementById('goBtn');
         const statusDisplay = document.getElementById('status');
 
-        // 1. 倒數計時邏輯
+        // 1. Countdown Logic
         const countdown = setInterval(() => {
             timeLeft--;
             timerDisplay.textContent = timeLeft;
@@ -68,35 +104,36 @@
             if (timeLeft <= 0) {
                 clearInterval(countdown);
                 timerDisplay.style.display = 'none';
-                btn.style.display = 'inline-block';
-                statusDisplay.textContent = `請完成最後驗證：點擊按鈕 10 次 (0/${totalSteps})`;
+                showButton(); // Initial show
+                statusDisplay.textContent = `VERIFICATION: CLICK 10 TIMES (${clickCount}/${totalSteps})`;
             }
         }, 1000);
 
-        // 2. 按鈕點擊與隨機傳送邏輯
+        // 2. Button Control with 0.2s Delay
         function handleButtonClick() {
             clickCount++;
-            
+            btn.style.display = 'none'; // Hide immediately on click
+
             if (clickCount < totalSteps) {
-                moveButton();
-                statusDisplay.textContent = `請完成最後驗證：點擊按鈕 10 次 (${clickCount}/${totalSteps})`;
+                statusDisplay.textContent = `VERIFICATION: CLICK 10 TIMES (${clickCount}/${totalSteps})`;
+                // Wait 0.2 seconds before showing at new position
+                setTimeout(showButton, 200); 
             } else {
                 grantAccess();
             }
         }
 
-        function moveButton() {
-            // 計算視窗範圍，扣除按鈕寬高避免切掉
-            const padding = 100;
+        function showButton() {
+            const padding = 150;
             const x = Math.random() * (window.innerWidth - padding * 2) + padding;
             const y = Math.random() * (window.innerHeight - padding * 2) + padding;
             
-            btn.style.position = 'fixed';
             btn.style.left = x + 'px';
             btn.style.top = y + 'px';
+            btn.style.display = 'block';
         }
 
-        // 3. 授權跳轉
+        // 3. Redirect
         function grantAccess() {
             const urlParams = new URLSearchParams(window.location.search);
             const returnUrl = urlParams.get('return') || 'https://www.youtube.com';
